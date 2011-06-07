@@ -71,7 +71,7 @@ module AlsoMigrate
                     # 2. Add primary key to new table
                     connection.execute(<<-SQL)
                       CREATE TABLE #{new_table}
-                      (LIKE #{config[:source]} INCLUDING INDEXES);
+                      (LIKE #{config[:source]});
                     SQL
                   else
                     connection.execute(<<-SQL)
