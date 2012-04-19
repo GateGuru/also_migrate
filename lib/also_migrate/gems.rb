@@ -63,7 +63,11 @@ unless defined?(AlsoMigrate::Gems)
         
             @gemsets = @config.gemsets.reverse.collect { |config|
               if config.is_a?(::String)
-                YAML::load(File.read(config)) rescue {}
+                begin
+                  YAML::load(File.read(config))
+                rescue Exception
+                  {}
+                end
               elsif config.is_a?(::Hash)
                 config
               end

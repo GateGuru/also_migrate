@@ -63,6 +63,16 @@ module AlsoMigrate
                       CREATE TABLE #{new_table}
                       (#{col_string})
                     SQL
+                  elsif postgresql?(connection)
+                    # Postgres patch
+                    # 1. Valid table creation
+                    #   "CREATE TABLE XXX LIKE YYY" is invalid
+                    #   "CREATE TABLE XXX ( LIKE YYY )" is a correct one
+                    # 2. Add primary key to new table
+                    connection.execute(<<-SQL)
+                      CREATE TABLE #{new_table}
+                      (LIKE #{config[:source]});
+                    SQL
                   else
                     connection.execute(<<-SQL)
                       CREATE TABLE #{new_table}
@@ -91,6 +101,10 @@ module AlsoMigrate
                 end
               end
             end
+          end
+
+          def postgresql?(connection)
+            connection.class.to_s.include?('PostgreSQL') || (connection.respond_to?(:adapter_name) && connection.adapter_name.to_s.include?('PostgreSQL'))
           end
         end
       end
